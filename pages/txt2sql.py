@@ -1,10 +1,9 @@
 from dotenv import load_dotenv
 import streamlit as st
 import os 
-import sqlite3
-# import typing
-from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate,SystemMessagePromptTemplate,HumanMessagePromptTemplate
+from app.src.nl_sql_langchain import invoke_chain
+from app.src.sql import db_creator
+import pandas as pd
 load_dotenv()
 
 os.environ['LANGCHAIN_TRACING_V2'] = os.getenv('LANGCHAIN_TRACING_V2')
@@ -15,72 +14,57 @@ os.environ['GROQ_API_KEY'] = os.getenv('GROQ_API_KEY')
 os.environ['PINECONE_API_KEY'] = os.getenv('PINECONE_API_KEY')
 groq_api_key= os.environ['GROQ_API_KEY']
 
-
-qa_template = """
-You are an expert data analyst. You have deep knowledge of SQL databse.You are expert in convert English qustion to SQL query. 
-Data base information:
-    Database name:  STUDENT 
-    Columns:  NAME, CLASS , SECTION, MARKS
-
-For Example 
-Example 1 - How many entries of records are present?, 
-SQL command - SELECT COUNT(*) from STUDENT; 
-
-Example 2 - Tell me all the students studying  in Data  science class?,
-SQL Command - SELECT * FROM STUDENT WHERE CLASS="Data Science";
-
-Note - SQL code should not have ''' in beginning or end and sql word in output. 
-
-"""
-llm= ChatGroq(model="llama-3.2-3b-preview")
-qa_prompt = ChatPromptTemplate.from_messages(
-   [ SystemMessagePromptTemplate.from_template(qa_template),
-    HumanMessagePromptTemplate.from_template("{input}")
-   ]
-)
-
-
-qa_chain = qa_prompt| llm
-
-def llm_reponse(question):
-    response = qa_chain.invoke(question)
-
-    return response.content
-
-def read_sql_query(sql_cmd,db):
-    conn = sqlite3.connect(db)
-    cur = conn.cursor()
-    cur.execute(sql_cmd)
-    rows = cur.fetchall()
-    conn.commit()
-    conn.close()
-
-    for row in rows:
-        print(row)
-    
-    return rows
-
 ## Streamlit app
 
 st.set_page_config(page_title="NL2SQL bot")
 st.sidebar.header("NL2SQL Bot")
 st.header("Text to SQL Bot")
+st.info('Kindly use keywords from uploaded CSV in your Query for better results.', icon="ℹ️")
 
-question = st.text_input("INPUT: ",key="input")
 
-submit = st.button("Ask Question")
+uploaded_file = st.file_uploader("Upload an Csv file", type=("csv"))
+st.write("OR")
+sample_file = 'studentdataset.csv'
+df = pd.read_csv(f"./data/{sample_file}")
 
-if submit:
-    response = llm_reponse({"input":question})
-    print(response)
+# Display the DataFrame
+st.write(df.head(4))
 
-    data = read_sql_query(response.replace("'''","").replace("```",""),"student.db")
+if uploaded_file is not None:
+    db_creator(uploaded_file,flag = True)
+    st.write("You can ask questions now!!")
+else:
+    if st.button("Load Sample Data"):
+        db_creator(sample_file)
+        st.write("You can ask questions now!!")
 
-    st.subheader("The Response is")
-    if isinstance(data,list):
-        for row in data:
-            print(row)
-            st.subheader(row)
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+
+# Display chat messages from history on app re-run
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+
+# Accept user input
+
+if prompt := st.chat_input("What's Up?"):
+    # add user msg to chat history
+    st.session_state.messages.append({'role':"user","content":prompt})
+
+    # Display user msg in chat msg container
+    with st.chat_message("user"):
+        st.markdown(prompt)
     
-    else:
-        st.subheader(data)
+    # Display response in container
+    with st.spinner("Generating response..."):
+        with st.chat_message("assistant"):
+            if uploaded_file is not None:
+                response = invoke_chain(prompt,st.session_state.messages,uploaded_file.name[:-4])
+            else:
+                response = invoke_chain(prompt,st.session_state.messages,sample_file[:-4])
+            st.markdown(response)
+        st.session_state.messages.append({"role":"assitant","content":response})
