@@ -1,8 +1,11 @@
 langchain
 langchain_community
 langchain-groq
-python-dotenv
-streamlit
 langchain_chroma
 langchain-huggingface
 sqlite3
+pandas
+pyprojroot
+python-dotenv
+streamlit
+PyPDF2
