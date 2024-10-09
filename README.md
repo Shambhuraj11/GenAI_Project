@@ -30,3 +30,8 @@ Utilising the powerful Groq Llama-3-70b model, this comprehensive application tr
   #### Job Profile Matching Indicator: Users can input job descriptions they wish to apply for, and the app will provide a detailed analysis along with a percentage indicating candidate suitability for the position.
 
   #### Improvement Suggestions: The app offers tailored suggestions for candidates based on the provided job description, helping them to enhance their profiles effectively.
+
+
+## I Have deployed My application on Huggingface. Feel free to checkout and suggest me improvements if any. Thank you
+
+link: https://huggingface.co/spaces/shambhurajp/Genai_project

@@ -5,15 +5,15 @@ from langchain_groq import ChatGroq
 from PyPDF2 import PdfReader
 from langchain_core.output_parsers import StrOutputParser
 from app.prompts.ats_prompt import resume_improviser_prompt,resume_matcher_prompt,resume_review_prompt
-load_dotenv()
+# load_dotenv()
 
-os.environ['LANGCHAIN_TRACING_V2'] = os.getenv('LANGCHAIN_TRACING_V2')
-os.environ['LANGCHAIN_ENDPOINT'] = os.getenv('LANGCHAIN_ENDPOINT')
-os.environ['LANGCHAIN_API_KEY'] = os.getenv('LANGCHAIN_API_KEY')
-os.environ['LANGCHAIN_PROJECT'] = os.getenv('LANGCHAIN_PROJECT')
-os.environ['GROQ_API_KEY'] = os.getenv('GROQ_API_KEY')
-os.environ['PINECONE_API_KEY'] = os.getenv('PINECONE_API_KEY')
-groq_api_key= os.environ['GROQ_API_KEY']
+# os.environ['LANGCHAIN_TRACING_V2'] = os.getenv('LANGCHAIN_TRACING_V2')
+# os.environ['LANGCHAIN_ENDPOINT'] = os.getenv('LANGCHAIN_ENDPOINT')
+# os.environ['LANGCHAIN_API_KEY'] = os.getenv('LANGCHAIN_API_KEY')
+# os.environ['LANGCHAIN_PROJECT'] = os.getenv('LANGCHAIN_PROJECT')
+# os.environ['GROQ_API_KEY'] = os.getenv('GROQ_API_KEY')
+# os.environ['PINECONE_API_KEY'] = os.getenv('PINECONE_API_KEY')
+# groq_api_key= os.environ['GROQ_API_KEY']
 
 ## Streamlit app
 
